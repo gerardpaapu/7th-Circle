@@ -1,0 +1,9 @@
+7th Circle
+==========
+
+This is a prototype testing the viability of a bullet-hell/shmup in
+a HTML/JS powered environment. Whether that is ultimately Elements as
+sprites, svg or canvas.
+
+Although, in all likelihood I'll find a language related "problem" and
+spend all my time "solving" it in an "elegant" way...
