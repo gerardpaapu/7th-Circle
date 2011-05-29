@@ -2,14 +2,25 @@ body, html {
     padding: 0;
     margin: 0;
     height: 100%;
-    background: black;
+    background: #ccc;
     color: white;
     font-size: 11px;
 }
 
-canvas {
+#Display {
     display: block;
-    margin: 20px auto;
-    border: solid 1px white;
-    background: #555;
+    position: relative;
+    overflow: hidden;
+    width: 320px;
+    height: 460px;
+    background: black;
+    margin: 0 auto;
+}
+
+#FPS {
+    width: 320px;
+    height: 20px;
+    background: white;
+    color: black;
+    margin: 0px auto;
 }

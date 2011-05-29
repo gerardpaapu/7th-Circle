@@ -1,26 +1,62 @@
-/*globals GameEntity */
+/*globals GameEntity: false, World: false, Bullet: false, Vector2D: false */
 (function () {
-    var entities, canvas, ctx, game_over,
-        i, j, k; 
+var makeCluster, start, frames, update, fpsElement, spawn_vectors;
+    
 
-    canvas    = document.getElementById('canvas');
-    ctx       = canvas.getContext('2d');
-    game_over = false;
+spawn_vectors = (function () {
+    var TAU = 2 * Math.PI,
+        min = 0.15,
+        max = 0.35,
+        step = (max - min) / 6,
+        pps = 5,
+        theta,
+        x_ratio,
+        y_ratio,
+        result = [];
 
-    while (!game_over){
-        entities  = GameEntity.instances;
-        i = j = k = entities.length;
+    for (theta = min; theta < max; theta += step ) {
+            x_ratio = Math.cos( theta * TAU );
+            y_ratio = Math.sin( theta * TAU );
+            result.push( new Vector2D(x_ratio * pps, y_ratio * pps) );
+    }
 
-        while (i--) {
-            entities[i].clear(ctx);
-        }
+    return result;
+}.call(this));
 
-        while (j--) {
-            entities[j].update();
-        }
 
-        while (k--) {
-            entities[k].draw(ctx);
+makeCluster = function (world, origin) {
+    var bullet, i = 6;
+    while (i--) {
+        if ((bullet = new Bullet(world, origin))) {
+            bullet.velocity = spawn_vectors[i];
+        } else {
+            break;
         }
     }
+};
+
+fpsElement = document.getElementById("FPS");
+start = +new Date();
+frames = 0;
+   
+update = function () {
+    var origin;
+
+    while (World.bullets.length < World.MAX_BULLETS) {
+        origin = new Vector2D.random(640, 960);
+        makeCluster(World, origin);
+    }
+
+    World.bullets.forEach(function (b) {
+        b.update(World);
+    });
+
+    World.bullets.forEach(function (b) {
+        b.draw();
+    });
+
+    frames++;
+    fpsElement.innerHTML = Math.floor(1000 * frames/ ((+ new Date()) - start)) +  "fps";
+};
+window.setInterval(update, 1000 / 60);
 }.call(null));

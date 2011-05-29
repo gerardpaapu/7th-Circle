@@ -145,8 +145,8 @@ Rect.prototype.containsRect = function (r) {
 };
 
 Rect.prototype.doesOverlap = function (r) {
-    var x_diff = r.x - this.origin.x,
-        y_diff = r.y - this.origin.y;
+    var x_diff = r.origin.x - this.origin.x,
+        y_diff = r.origin.y - this.origin.y;
 
     return x_diff > (-r.width)  && x_diff < this.width &&
            y_diff > (-r.height) && y_diff < this.height;
