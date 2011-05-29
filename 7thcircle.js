@@ -15,11 +15,12 @@ var World,
     Bonus;
 (function () {
 World = {
-    context: document.getElementById('Display'),
+    canvas: document.getElementById('Display'),
+    context: document.getElementById('Display').getContext('2d'),
     screen_area: new Rect(new Vector2D(0, 0), 320, 460),
     entities: [],
     bullets: [],
-    MAX_BULLETS: 600,
+    MAX_BULLETS: 90,
     bullet_sprites: [],
     free_bullet_sprites: [],
     
@@ -70,21 +71,17 @@ GameEntity.prototype = {
 };
 
 Bullet = function (world, position) {
-    if ((this.sprite = world.getSprite())) {
-        GameEntity.call(this, world, position); 
-        world.bullets.push(this);  
-    } else {
-        return null;
+    if (!this.image) {
+        Bullet.prototype.image = document.createElement('img');
+        Bullet.prototype.image.src = "img/bullet.png"; 
     }
+    GameEntity.call(this, world, position); 
+    world.bullets.push(this);  
 };
+Bullet.prototype.image = document.createElement('img');
+Bullet.prototype.image.src = "img/bullet.png"; 
 Bullet.prototype = Object.create( GameEntity );
 Bullet.prototype.kill = function (world) {
-    // hide the element
-    this.sprite.style.top = "-999px";
-    this.sprite.style.left = "-999px";
-    // queue it up for reuse
-    world.free_bullet_sprites.push(this.sprite);
-
     remove(this, world.bullets);
     GameEntity.prototype.kill.call(this, world);
 };
@@ -96,19 +93,26 @@ Bullet.prototype.update = function (world) {
     }
 };
 Bullet.prototype.drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
-Bullet.prototype.draw = function () {
-    var topLeft = this.position.plus( this.drawing_box.origin );   
-    this.sprite.style.top = Math.floor(topLeft.y) + 'px';
-    this.sprite.style.left = Math.floor(topLeft.x) + 'px';
+Bullet.prototype.clear = function (ctx) {
+    var box = this.drawing_box.moveBy( this.position );
+
+    ctx.clearRect(box.x, box.y, box.width, box.height);
+};
+Bullet.prototype.draw = function (ctx) {
+    var box = this.drawing_box.moveBy( this.position );
+
+    ctx.fillStyle = "rgb(255, 255, 255)";
+    ctx.beginPath();
+    ctx.arc(box.x, box.y, 4, 2 * Math.PI, 0, false);
+    ctx.closePath();
+    ctx.fill();
 };
 
 Baddy = function () { };
 
 Baddy.prototype = Object.create( GameEntity );
 
-Dude = function () {
-
-};
+Dude = function () { };
 
 Dude.prototype = Object.create( GameEntity );
 

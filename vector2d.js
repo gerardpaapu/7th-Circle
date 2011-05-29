@@ -116,6 +116,9 @@ var Rect = function (a, b, c, d) {
         default:
             throw new TypeError();
     }
+
+    this.x = this.origin.x;
+    this.y = this.origin.y;
 };
 
 Rect.prototype.limitPoint = function (p) {
@@ -150,4 +153,8 @@ Rect.prototype.doesOverlap = function (r) {
 
     return x_diff > (-r.width)  && x_diff < this.width &&
            y_diff > (-r.height) && y_diff < this.height;
+};
+
+Rect.prototype.moveBy = function (vec) {
+    return new Rect(this.origin.plus( vec ), this.width, this.height);
 };

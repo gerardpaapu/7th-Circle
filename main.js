@@ -1,6 +1,6 @@
 /*globals GameEntity: false, World: false, Bullet: false, Vector2D: false */
 (function () {
-var makeCluster, start, frames, update, fpsElement, spawn_vectors;
+var makeCluster, start, frames, update, fpsElement, spawn_vectors, recur;
     
 
 spawn_vectors = (function () {
@@ -40,23 +40,29 @@ start = +new Date();
 frames = 0;
    
 update = function () {
-    var origin;
+    var origin, b, i, j, bullets = World.bullets;
 
-    while (World.bullets.length < World.MAX_BULLETS) {
+    while (bullets.length < World.MAX_BULLETS) {
         origin = new Vector2D.random(640, 960);
         makeCluster(World, origin);
     }
 
-    World.bullets.forEach(function (b) {
-        b.update(World);
-    });
+    World.context.clearRect(0, 0, 320, 420);
+    
+    i = bullets.length;
 
-    World.bullets.forEach(function (b) {
-        b.draw();
-    });
+    while (i--) {
+        b = bullets[i];
+        b.update(World);
+        b.draw(World.context);
+    }
 
     frames++;
-    fpsElement.innerHTML = Math.floor(1000 * frames/ ((+ new Date()) - start)) +  "fps";
+    if (!(frames % 60)) {
+        fpsElement.innerHTML = Math.floor(1000 * frames/ ((+ new Date()) - start)) +  "fps";
+    }
 };
-window.setInterval(update, 1000 / 60);
+
+window.setInterval(update);
+
 }.call(null));
