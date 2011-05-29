@@ -20,7 +20,7 @@ World = {
     screen_area: new Rect(new Vector2D(0, 0), 320, 460),
     entities: [],
     bullets: [],
-    MAX_BULLETS: 90,
+    MAX_BULLETS: 70,
     bullet_sprites: [],
     free_bullet_sprites: [],
     
@@ -52,7 +52,7 @@ var remove = function (object, array) {
 GameEntity = function (world, position, bounding_box, drawing_box) {
     this.position = position || this.position;
     this.bounding_box = bounding_box || this.bounding_box;
-    this.drawing_box = drawing_box || this.drawing_box;
+    this.__drawing_box = drawing_box || this.__drawing_box;
 
     if (world) {
         this.world = world;
@@ -67,6 +67,15 @@ GameEntity.prototype = {
 
     update: function (world) {
         //
+    },
+
+    drawingBox: function () {
+        var box, position, x, y;
+        box = this.__drawing_box;
+        position = this.position;
+        x = box.x + position.x | 0;
+        y = box.y + position.y | 0;
+        return new Rect(new Vector2D(x, y), box.width, box.height);
     }
 };
 
@@ -76,7 +85,7 @@ Bullet = function (world, position) {
 };
 Bullet.prototype.image = document.createElement('img');
 Bullet.prototype.image.src = "img/bullet.png"; 
-Bullet.prototype = Object.create( GameEntity );
+Bullet.prototype = Object.create( GameEntity.prototype );
 Bullet.prototype.kill = function (world) {
     remove(this, world.bullets);
     GameEntity.prototype.kill.call(this, world);
@@ -88,20 +97,14 @@ Bullet.prototype.update = function (world) {
         this.kill(world);
     }
 };
-Bullet.prototype.drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
+Bullet.prototype.__drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
 Bullet.prototype.clear = function (ctx) {
     var box = this.drawing_box.moveBy( this.position );
-
     ctx.clearRect(box.x, box.y, box.width, box.height);
 };
 Bullet.prototype.draw = function (ctx) {
-    var box = this.drawing_box.moveBy( this.position );
-
-    ctx.fillStyle = "rgb(255, 255, 255)";
-    ctx.beginPath();
-    ctx.arc(box.x, box.y, 4, 2 * Math.PI, 0, false);
-    ctx.closePath();
-    ctx.fill();
+    var box = this.drawingBox();
+    ctx.drawImage(this.image, box.x, box.y);
 };
 
 Baddy = function () { };

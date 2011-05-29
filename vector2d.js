@@ -36,8 +36,8 @@ Vector2D.midpoint = function () {
 };
 
 Vector2D.random = function (x, y) {
-    return new Vector2D(Math.random() * x,
-                        Math.random() * y);
+    return new Vector2D(Math.random() * x | 0,
+                        Math.random() * y | 0);
 };
 
 Vector2D.prototype = {

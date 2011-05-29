@@ -17,7 +17,7 @@ spawn_vectors = (function () {
     for (theta = min; theta < max; theta += step ) {
             x_ratio = Math.cos( theta * TAU );
             y_ratio = Math.sin( theta * TAU );
-            result.push( new Vector2D(x_ratio * pps, y_ratio * pps) );
+            result.push( new Vector2D(x_ratio * pps | 0, y_ratio * pps | 0) );
     }
 
     return result;
