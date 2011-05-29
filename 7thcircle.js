@@ -71,10 +71,6 @@ GameEntity.prototype = {
 };
 
 Bullet = function (world, position) {
-    if (!this.image) {
-        Bullet.prototype.image = document.createElement('img');
-        Bullet.prototype.image.src = "img/bullet.png"; 
-    }
     GameEntity.call(this, world, position); 
     world.bullets.push(this);  
 };
