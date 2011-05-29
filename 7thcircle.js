@@ -51,7 +51,7 @@ var remove = function (object, array) {
 GameEntity = function (world, position, bounding_box, drawing_box) {
     this.position = position || this.position;
     this.bounding_box = bounding_box || this.bounding_box;
-    this.drawing_box = drawing_box || this.drawing_box;
+    this.__drawing_box = drawing_box || this.__drawing_box;
 
     if (world) {
         this.world = world;
@@ -66,6 +66,15 @@ GameEntity.prototype = {
 
     update: function (world) {
         //
+    },
+
+    drawingBox: function () {
+        var box, position, x, y;
+        box = this.__drawing_box;
+        position = this.position;
+        x = box.x + position.x | 0;
+        y = box.y + position.y | 0;
+        return new Rect(new Vector2D(x, y), box.width, box.height);
     }
 };
 
@@ -77,7 +86,7 @@ Bullet = function (world, position) {
         return null;
     }
 };
-Bullet.prototype = Object.create( GameEntity );
+Bullet.prototype = Object.create( GameEntity.prototype );
 Bullet.prototype.kill = function (world) {
     // hide the element
     this.sprite.style.top = "-999px";
@@ -95,11 +104,15 @@ Bullet.prototype.update = function (world) {
         this.kill(world);
     }
 };
-Bullet.prototype.drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
+Bullet.prototype.__drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
+Bullet.prototype.clear = function (ctx) {
+    var box = this.drawingBox();
+    ctx.clearRect(box.x, box.y, box.width, box.height);
+};
 Bullet.prototype.draw = function () {
-    var topLeft = this.position.plus( this.drawing_box.origin );   
-    this.sprite.style.top = Math.floor(topLeft.y) + 'px';
-    this.sprite.style.left = Math.floor(topLeft.x) + 'px';
+    var box = this.drawingBox();
+    this.sprite.style.top = box.y + 'px';
+    this.sprite.style.left = box.x + 'px';
 };
 
 Baddy = function () { };
