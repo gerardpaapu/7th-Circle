@@ -49,14 +49,14 @@ update = function () {
 
     World.bullets.forEach(function (b) {
         b.update(World);
-    });
-
-    World.bullets.forEach(function (b) {
         b.draw();
     });
 
     frames++;
-    fpsElement.innerHTML = Math.floor(1000 * frames/ ((+ new Date()) - start)) +  "fps";
+
+    if (frames % 20 === 0){
+        fpsElement.innerHTML = Math.floor(1000 * frames/ ((+ new Date()) - start)) +  "fps";
+    }
 };
-window.setInterval(update, 1000 / 60);
+window.setInterval(update);
 }.call(null));
