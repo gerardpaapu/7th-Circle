@@ -5,8 +5,8 @@ var makeCluster, start, frames, update, fpsElement, spawn_vectors, recur;
 
 spawn_vectors = (function () {
     var TAU = 2 * Math.PI,
-        min = 0.15,
-        max = 0.35,
+        min = 0.15 * TAU,
+        max = 0.35 * TAU,
         step = (max - min) / 6,
         pps = 5,
         theta,
@@ -15,9 +15,9 @@ spawn_vectors = (function () {
         result = [];
 
     for (theta = min; theta < max; theta += step ) {
-            x_ratio = Math.cos( theta * TAU );
-            y_ratio = Math.sin( theta * TAU );
-            result.push( new Vector2D(x_ratio * pps | 0, y_ratio * pps | 0) );
+            x_ratio = Math.cos( theta );
+            y_ratio = Math.sin( theta );
+            result.push( new Vector2D(x_ratio * pps, y_ratio * pps) );
     }
 
     return result;
