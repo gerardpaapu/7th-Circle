@@ -13,36 +13,16 @@ var World,
     Dude,
     Baddy,
     Bonus;
+
 (function () {
+
 World = {
     canvas: document.getElementById('Display'),
     context: document.getElementById('Display').getContext('2d'),
     screen_area: new Rect(new Vector2D(0, 0), 320, 460),
     entities: [],
     bullets: [],
-    MAX_BULLETS: 70,
-    bullet_sprites: [],
-    free_bullet_sprites: [],
-    
-    getSprite: function () {
-        var element;
-        if (this.bullet_sprites.length < this.MAX_BULLETS) {
-            element = document.createElement("img");
-            element.src = "img/bullet.png";
-            element.width = 8;
-            element.height = 8;
-            element.style.position = "absolute";
-            element.style.top = "-999px";
-            element.style.left = "-999px";
-            this.bullet_sprites.push(element);
-            this.context.appendChild(element);
-            return element;
-        } else if (this.free_bullet_sprites.length > 0) {
-            return this.free_bullet_sprites.pop(); 
-        } else {
-            return null;
-        }
-    }
+    MAX_BULLETS: 200
 };
 
 var remove = function (object, array) {
@@ -83,9 +63,10 @@ Bullet = function (world, position) {
     GameEntity.call(this, world, position); 
     world.bullets.push(this);  
 };
+Bullet.prototype = Object.create( GameEntity.prototype );
+
 Bullet.prototype.image = document.createElement('img');
 Bullet.prototype.image.src = "img/bullet.png"; 
-Bullet.prototype = Object.create( GameEntity.prototype );
 Bullet.prototype.kill = function (world) {
     remove(this, world.bullets);
     GameEntity.prototype.kill.call(this, world);
@@ -103,16 +84,30 @@ Bullet.prototype.clear = function (ctx) {
     ctx.clearRect(box.x, box.y, box.width, box.height);
 };
 Bullet.prototype.draw = function (ctx) {
-    var box = this.drawingBox();
-    ctx.drawImage(this.image, box.x, box.y);
+    var box;
+    if (this.imageData) { 
+        box = this.drawingBox();
+        ctx.putImageData(this.imageData, box.x, box.y);
+    }
 };
+(function () {
+    var img = document.createElement('img'); 
+    img.src = "img/bullet.png";       
+    img.onload = function () { 
+        var ctx = World.context;
+
+        ctx.clearRect(0, 0, 8, 8);
+        ctx.drawImage(img, 0, 0);
+        Bullet.prototype.imageData = ctx.getImageData(0, 0, 8, 8);
+    };
+}.call(this));
 
 Baddy = function () { };
 
-Baddy.prototype = Object.create( GameEntity );
+Baddy.prototype = Object.create( GameEntity.prototype );
 
 Dude = function () { };
 
-Dude.prototype = Object.create( GameEntity );
+Dude.prototype = Object.create( GameEntity.prototype );
 
 }.call(null));
