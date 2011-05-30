@@ -1,7 +1,6 @@
 /*globals GameEntity: false, World: false, Bullet: false, Vector2D: false */
 (function () {
-var makeCluster, start, frames, update, fpsElement, spawn_vectors, recur;
-    
+var makeCluster, times, update, fpsElement, spawn_vectors, recur;
 
 spawn_vectors = (function () {
     var TAU = 2 * Math.PI,
@@ -36,8 +35,7 @@ makeCluster = function (world, origin) {
 };
 
 fpsElement = document.getElementById("FPS");
-start = +new Date();
-frames = 0;
+times = Array(20);
    
 update = function () {
     var origin, b, i, j, bullets = World.bullets;
@@ -57,10 +55,9 @@ update = function () {
         b.draw(World.context);
     }
 
-    frames++;
-    if (!(frames % 60)) {
-        fpsElement.innerHTML = Math.floor(1000 * frames/ ((+ new Date()) - start)) +  "fps";
-    }
+    times.shift();
+    times.push(+new Date());
+    fpsElement.innerHTML = ~~(19000 / (times[19] - times[0])) + 'fps';
 };
 
 window.setInterval(update);

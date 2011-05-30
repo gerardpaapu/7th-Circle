@@ -90,6 +90,7 @@ Bullet.prototype.draw = function (ctx) {
         ctx.putImageData(this.imageData, box.x, box.y);
     }
 };
+
 (function () {
     var img = document.createElement('img'); 
     img.src = "img/bullet.png";       
