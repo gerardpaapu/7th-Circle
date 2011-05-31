@@ -1,40 +1,32 @@
 /*globals Vector2D: false, Rect: false */
-if (! Object.create) {
-    Object.create = function (o) {
-        var F = function (){};
-        F.prototype = o;
-        return new F();
-    };
-}
-
-var World,
-    GameEntity,
+var GameEntity,
     Bullet,
     Dude,
     Baddy,
     Bonus;
 
 (function () {
+var remove, create, floor;
 
-World = {
-    screen_area: new Rect(new Vector2D(0, 0), 320, 460),
-    entities: [],
-    bullets: [],
-    MAX_BULLETS: 200
-};
-
-var remove = function (object, array) {
+remove = function (object, array) {
     array.splice(array.indexOf(object), 1);
 };
+
+create = Object.create || function (o) {
+    var F = function (){};
+    F.prototype = o;
+    return new F();
+};
+
+floor = Math.floor;
 
 GameEntity = function (world, position, bounding_box, drawing_box) {
     this.position = position || this.position;
     this.bounding_box = bounding_box || this.bounding_box;
-    this.__drawing_box = drawing_box || this.__drawing_box;
+    this.drawing_box = drawing_box || this.drawing_box;
 
     if (world) {
-        this.world = world;
-        this.world.entities.push( this );
+        world.entities.push( this );
     }
 };
 GameEntity.instances = [];
@@ -43,16 +35,23 @@ GameEntity.prototype = {
         remove(this, world.entities);
     }, 
 
-    update: function (world) {
-        //
-    },
+    update: function (world) { },
 
     drawingBox: function () {
         var box, position, x, y;
-        box = this.__drawing_box;
+        box = this.drawing_box;
         position = this.position;
-        x = box.x + position.x | 0;
-        y = box.y + position.y | 0;
+        x = floor(box.x + position.x);
+        y = floor(box.y + position.y);
+        return new Rect(new Vector2D(x, y), box.width, box.height);
+    },
+
+    boundingBox: function () {
+        var box, position, x, y;
+        box = this.bounding_box;
+        position = this.position;
+        x = box.x + position.x;
+        y = box.y + position.y;
         return new Rect(new Vector2D(x, y), box.width, box.height);
     },
 
@@ -69,30 +68,26 @@ GameEntity.prototype = {
 
 Bullet = function (world, position) {
     GameEntity.call(this, world, position); 
-    world.bullets.push(this);  
 };
-Bullet.prototype = Object.create( GameEntity.prototype );
+Bullet.prototype = create( GameEntity.prototype );
 
 Bullet.prototype.image = "bullet";
-Bullet.prototype.kill = function (world) {
-    remove(this, world.bullets);
-    GameEntity.prototype.kill.call(this, world);
-};
+Bullet.prototype.velocity = new Vector2D(0, 0);
+Bullet.prototype.drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
 Bullet.prototype.update = function (world) {
     this.position = this.position.plus( this.velocity );
 
-    if (! world.screen_area.containsPoint(this.position)) {
+    if (! world.bounds.containsPoint(this.position)) {
         this.kill(world);
     }
 };
-Bullet.prototype.__drawing_box = new Rect(new Vector2D(-4, -4), 8, 8);
 
 Baddy = function () { };
 
-Baddy.prototype = Object.create( GameEntity.prototype );
+Baddy.prototype = create( GameEntity.prototype );
 
 Dude = function () { };
 
-Dude.prototype = Object.create( GameEntity.prototype );
+Dude.prototype = create( GameEntity.prototype );
 
 }.call(null));
