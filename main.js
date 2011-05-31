@@ -1,65 +1,86 @@
-/*globals GameEntity: false, World: false, Bullet: false, Vector2D: false */
+/*globals GameEntity: false, World: false, Bullet: false, Vector2D: false, Display: false */
 (function () {
-var makeCluster, times, update, fpsElement, spawn_vectors, recur;
+var makeCluster, update, updateFps, angles, recur;
 
-spawn_vectors = (function () {
-    var TAU = 2 * Math.PI,
-        min = 0.15 * TAU,
-        max = 0.35 * TAU,
-        step = (max - min) / 6,
-        pps = 5,
+angles = (function () {
+    var min = 0 ,
+        max = 2 * Math.PI,
+        step = (max - min) / 100,
         theta,
-        x_ratio,
-        y_ratio,
+        x,
+        y,
         result = [];
 
     for (theta = min; theta < max; theta += step ) {
-            x_ratio = Math.cos( theta );
-            y_ratio = Math.sin( theta );
-            result.push( new Vector2D(x_ratio * pps, y_ratio * pps) );
+        x = Math.cos( theta );
+        y = Math.sin( theta );
+        result.push( new Vector2D(x, y) );
     }
 
     return result;
-}.call(this));
-
+}());
 
 makeCluster = function (world, origin) {
-    var bullet, i = 6;
-    while (i--) {
+    var bullet, i, min = 15, max = 35;
+    for (i = min; i < max; i++) {
         if ((bullet = new Bullet(world, origin))) {
-            bullet.velocity = spawn_vectors[i];
+            bullet.velocity = angles[i].scale(5);
         } else {
             break;
         }
     }
 };
 
-fpsElement = document.getElementById("FPS");
-times = Array(20);
-   
-update = function () {
-    var origin, b, i, j, bullets = World.bullets;
+updateFps = (function () {
+    var fpsElement, times;
 
-    while (bullets.length < World.MAX_BULLETS) {
-        origin = new Vector2D.random(640, 960);
+    fpsElement = document.getElementById("FPS");
+
+    times = [ 0,0,0,0,0,
+              0,0,0,0,0,
+              0,0,0,0,0,
+              0,0,0,0,0 ];
+
+    return function () {
+        times.shift();
+        times.push(+new Date());
+        fpsElement.innerHTML = Math.round(19000 / (times[19] - times[0])) + 'fps';
+    };
+}());
+
+update = function (display, world) {
+    var origin, b, i, bullets = world.bullets;
+
+    while (bullets.length < world.MAX_BULLETS) {
+        origin = new Vector2D.random(display.width, display.height);
         makeCluster(World, origin);
     }
 
-    World.context.clearRect(0, 0, 320, 420);
+    display.clear();
     
     i = bullets.length;
 
     while (i--) {
         b = bullets[i];
-        b.update(World);
-        b.draw(World.context);
+        b.update(world);
+        b.draw(display);
     }
 
-    times.shift();
-    times.push(+new Date());
-    fpsElement.innerHTML = ~~(19000 / (times[19] - times[0])) + 'fps';
+    updateFps();
 };
 
-window.setInterval(update);
+new Display({
+    images: {
+        'bullet': "img/bullet.png"
+    },
+
+    onLoad: function (display) {
+        // start updating
+        document.getElementById('DisplayWrapper').appendChild(display.canvas);
+        window.setInterval(function () {
+            update(display, World);
+        }, 1000 / 60);
+    }
+});
 
 }.call(null));
