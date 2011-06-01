@@ -1,4 +1,5 @@
-var Vector2D = function (x, y) {
+var Vector2D, Rect;
+Vector2D = function (x, y) {
     if (isNaN(x) || isNaN(y)) {
         throw new Error("invalid coordinates");
     }
@@ -14,6 +15,10 @@ Vector2D.from = function (a) {
 
     return a instanceof Vector2D ? a
         :  new Vector2D(a[0], a[1]);
+};
+
+Vector2D.fromAngle = function (theta) {
+    return Vector2D.__angles_lookup__[ Math.floor(theta % 100) ];
 };
 
 Vector2D.add = function () {
@@ -36,8 +41,8 @@ Vector2D.midpoint = function () {
 };
 
 Vector2D.random = function (x, y) {
-    return new Vector2D(Math.random() * x | 0,
-                        Math.random() * y | 0);
+    return new Vector2D(Math.floor(Math.random() * x),
+                        Math.floor(Math.random() * y));
 };
 
 Vector2D.prototype = {
@@ -77,6 +82,16 @@ Vector2D.prototype = {
 
     limit: function (rect) {
         return rect.limitPoint(this);
+    },
+
+    direction: function () {
+        var ratio = Math.floor(100 * this.x / this.y);
+        return Vector2D.__direction_lookup__[ratio];
+    },
+
+    angle: function () {
+        var ratio = Math.floor(100 * this.x / this.y);
+        return Vector2D.__angle_reverse_lookup__[ratio];
     }
 };
 
@@ -84,7 +99,32 @@ Vector2D.prototype.diff = Vector2D.prototype.minus;
 
 Vector2D.zero = new Vector2D(0, 0);
 
-var Rect = function (a, b, c, d) {
+Vector2D.__angles_lookup__ = [];
+Vector2D.__angle_reverse_lookup__ = [];
+Vector2D.__ratio_lookup__ = [];
+
+(function () {
+    var TAU = 2 * Math.PI,
+        theta, ratio, i, x, y, direction;
+
+    for (i = 0; i < 100; i++) {
+        theta = TAU * i / 100;
+        x = Math.cos(theta);
+        y = Math.sin(theta);
+        ratio = Math.round(100 * x / y);
+        Vector2D.__angles_lookup__[ i ] = new Vector2D(x, y);
+    }
+
+    for (i = 0; i < 100; i++) {
+        theta = Math.atan(i / 100);
+        x = Math.cos(theta);
+        y = Math.sin(theta);
+        Vector2D.__ratio_lookup__[ i ] = new Vector2D(x, y);
+        Vector2D.__angle_reverse_lookup__[ i ] = theta;
+    }
+}.call(null));
+
+Rect = function (a, b, c, d) {
     switch (arguments.length) {
         // new Rect(Vector2D a, Vector2D b);
         case 2:
@@ -128,8 +168,8 @@ Rect.prototype.limitPoint = function (p) {
         return Math.min(top, Math.max(bottom, n));
     }  
 
-    return new Vector2D(limit(this.topLeft.x, this.x + this.width,  p.x),
-                        limit(this.topLeft.y, this.y + this.height, p.y));
+    return new Vector2D(limit(this.origin.x, this.x + this.width,  p.x),
+                        limit(this.origin.y, this.y + this.height, p.y));
 };
 
 Rect.prototype.containsPoint = function (p) {

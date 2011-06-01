@@ -45,8 +45,8 @@ var Display;
     Display.prototype.loadImages = function () {
         var key, value, display, images, loadImage, waiting, onProgress, onComplete;
 
-        waiting = keys(images).length;
         images = this.options.images;
+        waiting = keys(images).length;
         display = this;
 
         loadImage = function (key, url, x, y, width, height) { 

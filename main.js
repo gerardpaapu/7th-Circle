@@ -1,4 +1,4 @@
-/*globals GameEntity: false, World: false, Bullet: false, Vector2D: false, Rect: false, Display: false */
+/*globals GameEntity: false, World: false, Bullet: false, Vector2D: false, Rect: false, Display: false, $: false */
 (function () {
 
 var World, makeCluster, update, updateFps, angles;
@@ -8,29 +8,11 @@ World = {
     entities: []
 };
 
-angles = (function () {
-    var min = 0 ,
-        max = 2 * Math.PI,
-        step = (max - min) / 100,
-        theta,
-        x,
-        y,
-        result = [];
-
-    for (theta = min; theta < max; theta += step ) {
-        x = Math.cos( theta );
-        y = Math.sin( theta );
-        result.push( new Vector2D(x, y) );
-    }
-
-    return result;
-}());
-
 makeCluster = function (world, origin) {
     var bullet, i, min = 15, max = 35;
     for (i = min; i < max; i += 4) {
         if ((bullet = new Bullet(world, origin))) {
-            bullet.velocity = angles[i].scale(5);
+            bullet.velocity = Vector2D.fromAngle(i).scale(5);
         } else {
             break;
         }
@@ -77,20 +59,43 @@ update = function (display, world) {
     updateFps();
 };
 
+document.addEventListener('touchmove', function (event) {
+    event.preventDefault();
+}, true);
+
+$.gesture({
+    element: $("#MainContainer"),
+
+    bind: $("#Position"),
+
+    start: function (e, point) {
+        this.innerHTML = "started";
+    },
+
+    move: function (e, point) {
+        this.innerHTML = [point.x, point.y].join(', ');
+    },
+
+    end: function (e, point) {
+        this.innerHTML = "off screen";
+    }
+});
+
 new Display({
     width: 320,
     height: 420,
+
     images: {
         'bullet': "img/bullet.png"
     },
 
     onLoad: function (display) {
         // start updating
-        document.getElementById('DisplayWrapper').appendChild(display.canvas);
+        $('#DisplayWrapper').appendChild(display.canvas);
 
         window.setInterval(function () {
             update(display, World);
-        }, 1000 / 100);
+        });
     }
 });
 

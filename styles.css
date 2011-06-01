@@ -7,6 +7,16 @@ body, html {
     font-size: 11px;
 }
 
+#MainWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background: black;
+}
+
 #Display {
     display: block;
     position: relative;
@@ -17,7 +27,7 @@ body, html {
     margin: 0 auto;
 }
 
-#FPS {
+#Status {
     width: 320px;
     height: 20px;
     background: white;

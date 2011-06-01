@@ -1,9 +1,8 @@
 /*globals Vector2D: false, Rect: false */
 var GameEntity,
     Bullet,
-    Dude,
-    Baddy,
-    Bonus;
+    dude,
+    cursor;
 
 (function () {
 var remove, create, floor;
@@ -41,6 +40,9 @@ GameEntity.prototype = {
     }, 
 
     update: function (world) { },
+    position: Vector2D.zero,
+    bounding_box: new Rect(0, 0, 1, 1),
+    drawing_box: new Rect(0, 0, 1, 1),
 
     drawingBox: function () {
         var box, position, x, y;
@@ -86,13 +88,25 @@ Bullet.prototype.update = function (world) {
         this.kill(world);
     }
 };
+/*
+cursor = new GameEntity();
+cursor.image = "cursor";
+cursor.drawing_box = new Rect(new Vector2D(-10, -10), 20, 20);
+cursor.update = function () {
+    // be where the cursor is
+};
 
-Baddy = function () { };
+dude = new GameEntity();
+dude.image = "dude";
+dude.drawing_box = new Rect(-16, -16, 32, 32);
+dude.update = function () {
+    var diff = this.position.minus( cursor.position ),
+        angle = Math.atan(diff.y / diff.x) * 50 / Math.PI,
+        heading = angles[angle];
 
-Baddy.prototype = create( GameEntity.prototype );
+    this.position = this.position.plus( 
+};
+*/
 
-Dude = function () { };
-
-Dude.prototype = create( GameEntity.prototype );
 
 }.call(null));
