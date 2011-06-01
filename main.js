@@ -78,7 +78,8 @@ update = function (display, world) {
 };
 
 new Display({
-
+    width: 320,
+    height: 420,
     images: {
         'bullet': "img/bullet.png"
     },

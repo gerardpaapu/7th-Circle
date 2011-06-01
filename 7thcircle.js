@@ -9,7 +9,12 @@ var GameEntity,
 var remove, create, floor;
 
 remove = function (object, array) {
-    array.splice(array.indexOf(object), 1);
+    var index = array.indexOf(object);
+    if (index != -1) {
+        array.splice(index, 1);
+    } else {
+        throw new Error("object doesn't exist in array");
+    }
 };
 
 create = Object.create || function (o) {
