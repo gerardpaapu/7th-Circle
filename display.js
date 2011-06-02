@@ -35,37 +35,24 @@ var Display;
     Display.prototype.draw = function (key, _x, _y) {
         var source = this.data_cache[key],
             _width = this.width,
-            point_source, point_dest, isTransparent, copyPixel,
-            i, j, workingBuffer;
+            width = source.width,
+            height = source.height,
+            buff = this.workingBuffer.data,
+            x, y, i, j;
 
-        workingBuffer = this.workingBuffer;
+        for (x = 0; x < width; x++) {
+            for (y = 0; y < height; y++) {
+                // i is the index to start reading from
+                // j is the index to start writing from
+                i = 4 * (y * width + x);  
+                j = 4 * ((y + _y) * _width + x + _x); 
 
-        point_source = function (x, y) {
-            return y * source.width + x;
-        };
-
-        point_dest = function (x, y) {
-            return (y + _y) * _width + x + _x; 
-        };
-
-        isTransparent = function (x, y) {
-            return source.data[ point_source(x, y) * 4 + 3] === 0; 
-        };
-
-        copyPixel = function (x, y) {
-            var i = point_source(x, y) * 4,
-                j = point_dest(x, y)   * 4;
-
-            workingBuffer.data[j++] = source.data[i++];
-            workingBuffer.data[j++] = source.data[i++];
-            workingBuffer.data[j++] = source.data[i++];
-            workingBuffer.data[j] = 255;
-        };
-
-        for (i = 0; i < source.width; i++) {
-            for (j = 0; j < source.height; j++) {
-                if (!isTransparent(i, j)) {
-                    copyPixel(i, j);
+                if (source.data[ i + 3 ] !== 0) {
+                    // if the alpha byte of the source isn't 0
+                    buff[j++] = source.data[i++]; // copy red 
+                    buff[j++] = source.data[i++]; // copy green
+                    buff[j++] = source.data[i++]; // copy blue
+                    buff[j] = 255;                // set alpha to 100%
                 }
             }
         }
