@@ -38,7 +38,7 @@ updateFps = (function () {
 
 update = function (display, world) {
     var bullets = world.entities,
-        MAX_BULLETS = 400,
+        MAX_BULLETS = 100,
         origin, b, i; 
 
     while (bullets.length < MAX_BULLETS) {
@@ -60,7 +60,6 @@ update = function (display, world) {
     updateFps();
 };
 
-/*
 document.addEventListener('touchmove', function (event) {
     event.preventDefault();
 }, true);
@@ -82,7 +81,7 @@ $.gesture({
         this.innerHTML = "off screen";
     }
 });
-*/
+
 new Display({
     width: 320,
     height: 420,
@@ -94,10 +93,11 @@ new Display({
     onLoad: function (display) {
         // start updating
         $('#DisplayWrapper').appendChild(display.canvas);
+        display.compileSprite('bullet');
 
         window.setInterval(function () {
             update(display, World);
-        });
+        }, 10);
     }
 });
 

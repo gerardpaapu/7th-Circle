@@ -29,15 +29,22 @@ var Display;
     };
 
     Display.prototype.data_cache = {};
+    Display.prototype.__compiled = {};
 
     Display.prototype.workingBuffer = null;
 
     Display.prototype.draw = function (key, _x, _y) {
+        var fn; 
+        if ((fn = this.__compiled[key])) {
+            fn(_x, _y, this.workingBuffer.data);
+        }
+    };
+
+    Display.prototype.compileSprite = function (key) {
         var source = this.data_cache[key],
-            _width = this.width,
             width = source.width,
             height = source.height,
-            buff = this.workingBuffer.data,
+            code = "",
             x, y, i, j;
 
         for (x = 0; x < width; x++) {
@@ -45,17 +52,28 @@ var Display;
                 // i is the index to start reading from
                 // j is the index to start writing from
                 i = 4 * (y * width + x);  
-                j = 4 * ((y + _y) * _width + x + _x); 
 
                 if (source.data[ i + 3 ] !== 0) {
                     // if the alpha byte of the source isn't 0
-                    buff[j++] = source.data[i++]; // copy red 
-                    buff[j++] = source.data[i++]; // copy green
-                    buff[j++] = source.data[i++]; // copy blue
-                    buff[j] = 255;                // set alpha to 100%
+                    code += [
+                        "j = 4 * ((" + x + " + _y) * " + this.width + " + " + x + " + _x);",
+                        "buff[j++] = " + source.data[i++] + "; // copy red",
+                        "buff[j++] = " + source.data[i++] + "; // copy green",
+                        "buff[j++] = " + source.data[i++] + "; // copy blue",
+                        "buff[j] = 255; // set alpha to 100%\n"
+                    ].join('\n');
                 }
             }
         }
+
+        code =  [
+            "(function (_x, _y, buff) {",
+            "var j;",
+            code,
+            "})"
+        ].join('\n');
+        console.log(code);
+        this.__compiled[key] = eval(code);
     };
 
     Display.prototype.update = function () {
