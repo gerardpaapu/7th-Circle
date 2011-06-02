@@ -11,6 +11,7 @@ var Display;
         this.canvas.id = options.id;
 
         this.context = this.canvas.getContext('2d');
+        this.workingBuffer = this.context.createImageData(this.width, this.height);
         this.loadImages();
     };
 
@@ -20,30 +21,62 @@ var Display;
         id: "Display",
         images: {},
         onProgress: function () {},
-        onLoad: function () { }
+        onLoad: function () {}
     };
 
     Display.prototype.clear = function (x, y, width, height) {
-        x = x || 0;
-        y = y || 0;
-        width = width || this.canvas.width;
-        height = height || this.canvas.height;
-
-        this.context.clearRect(x, y, width, height);
+        this.workingBuffer = this.context.createImageData(this.width, this.height);
     };
 
-    Display.prototype.image_data = {};
+    Display.prototype.data_cache = {};
 
-    Display.prototype.draw = function (key, x, y) {
-        var data = this.image_data[key];
+    Display.prototype.workingBuffer = null;
 
-        if (data) {
-            this.context.putImageData(data, x, y);
+    Display.prototype.draw = function (key, _x, _y) {
+        var source = this.data_cache[key],
+            _width = this.width,
+            point_source, point_dest, isTransparent, copyPixel,
+            i, j, workingBuffer;
+
+        workingBuffer = this.workingBuffer;
+
+        point_source = function (x, y) {
+            return y * source.width + x;
+        };
+
+        point_dest = function (x, y) {
+            return (y + _y) * _width + x + _x; 
+        };
+
+        isTransparent = function (x, y) {
+            return source.data[ point_source(x, y) * 4 + 3] === 0; 
+        };
+
+        copyPixel = function (x, y) {
+            var i = point_source(x, y) * 4,
+                j = point_dest(x, y)   * 4;
+
+            workingBuffer.data[j++] = source.data[i++];
+            workingBuffer.data[j++] = source.data[i++];
+            workingBuffer.data[j++] = source.data[i++];
+            workingBuffer.data[j] = 255;
+        };
+
+        for (i = 0; i < source.width; i++) {
+            for (j = 0; j < source.height; j++) {
+                if (!isTransparent(i, j)) {
+                    copyPixel(i, j);
+                }
+            }
         }
     };
 
+    Display.prototype.update = function () {
+        this.context.putImageData(this.workingBuffer, 0, 0);
+    };
+
     Display.prototype.loadImages = function () {
-        var key, value, display, images, loadImage, waiting, onProgress, onComplete;
+        var key, v, display, images, loadImage, waiting, onProgress;
 
         images = this.options.images;
         waiting = keys(images).length;
@@ -67,7 +100,7 @@ var Display;
         onProgress = function (key, data) {
             waiting--;    
 
-            display.image_data[key] = data; 
+            display.data_cache[key] = data; 
             display.options.onProgress(key, data);
             
             if (waiting === 0) {
@@ -76,14 +109,14 @@ var Display;
         };
 
         for (key in images) {
-            value = images[key];
+            v = images[key];
 
-            switch (type( value )) {
+            switch (type( v )) {
                 case "string":
-                    loadImage(key, value);
+                    loadImage(key, v);
                     break;
                 case "array":  
-                    loadImage.apply(undef, [key].concat(value));
+                    loadImage(key, v[0], v[1], v[2], v[3], v[4]);
                     break;
             }
         } 
@@ -122,6 +155,4 @@ var Display;
         return o == undef ? String(o)
             :  {}.toString.call(o).slice(8, -1).toLowerCase();
     };
-
-    return Display;
 }.call(null));

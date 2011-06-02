@@ -38,7 +38,7 @@ updateFps = (function () {
 
 update = function (display, world) {
     var bullets = world.entities,
-        MAX_BULLETS = 200,
+        MAX_BULLETS = 400,
         origin, b, i; 
 
     while (bullets.length < MAX_BULLETS) {
@@ -56,9 +56,11 @@ update = function (display, world) {
         b.draw(display);
     }
 
+    display.update();
     updateFps();
 };
 
+/*
 document.addEventListener('touchmove', function (event) {
     event.preventDefault();
 }, true);
@@ -80,7 +82,7 @@ $.gesture({
         this.innerHTML = "off screen";
     }
 });
-
+*/
 new Display({
     width: 320,
     height: 420,
