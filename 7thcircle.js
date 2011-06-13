@@ -46,20 +46,24 @@ GameEntity.prototype = {
 
     drawingBox: function () {
         var box, position, x, y;
+
         box = this.drawing_box;
         position = this.position;
         x = floor(box.x + position.x);
         y = floor(box.y + position.y);
-        return new Rect(new Vector2D(x, y), box.width, box.height);
+
+        return new Rect(x, y, box.width, box.height);
     },
 
     boundingBox: function () {
         var box, position, x, y;
+
         box = this.bounding_box;
         position = this.position;
         x = box.x + position.x;
         y = box.y + position.y;
-        return new Rect(new Vector2D(x, y), box.width, box.height);
+
+        return new Rect(x, y, box.width, box.height);
     },
 
     draw: function (display) {
