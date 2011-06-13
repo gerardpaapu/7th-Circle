@@ -85,13 +85,11 @@ Vector2D.prototype = {
     },
 
     direction: function () {
-        var ratio = Math.floor(100 * this.x / this.y);
-        return Vector2D.__direction_lookup__[ratio];
+        return Vector2D.fromAngle(this.angle());
     },
 
     angle: function () {
-        var ratio = Math.floor(100 * this.x / this.y);
-        return Vector2D.__angle_reverse_lookup__[ratio];
+        return Math.floor((50 / Math.PI) * (Math.atan2(this.y, this.x) + Math.PI));
     }
 };
 
@@ -105,7 +103,7 @@ Vector2D.__ratio_lookup__ = [];
 
 (function () {
     var TAU = 2 * Math.PI,
-        theta, ratio, i, x, y, direction;
+        theta, ratio, i, x, y;
 
     for (i = 0; i < 100; i++) {
         theta = TAU * i / 100;
@@ -113,14 +111,6 @@ Vector2D.__ratio_lookup__ = [];
         y = Math.sin(theta);
         ratio = Math.round(100 * x / y);
         Vector2D.__angles_lookup__[ i ] = new Vector2D(x, y);
-    }
-
-    for (i = 0; i < 100; i++) {
-        theta = Math.atan(i / 100);
-        x = Math.cos(theta);
-        y = Math.sin(theta);
-        Vector2D.__ratio_lookup__[ i ] = new Vector2D(x, y);
-        Vector2D.__angle_reverse_lookup__[ i ] = theta;
     }
 }.call(null));
 
